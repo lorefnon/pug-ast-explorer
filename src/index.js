@@ -3,18 +3,24 @@ import ReactDOM from "react-dom";
 import pugLexer from "pug-lexer";
 import pugParser from "pug-parser";
 import Highlight from "react-highlight";
+import JSONTree from "react-json-tree";
+import Tabs, { TabPane } from "rc-tabs";
+import TabContent from "rc-tabs/lib/TabContent";
+import ScrollableInkTabBar from "rc-tabs/lib/ScrollableInkTabBar";
 
-import "highlight.js/styles/androidstudio.css";
+import "highlight.js/styles/github.css";
 import "./styles.css";
+import "rc-tabs/assets/index.css";
 
 function App() {
   const [src, setSrc] = useState("");
   let isError = false;
+  let ast = null;
   let output = "";
   if (src) {
     try {
       const tokens = pugLexer(src);
-      const ast = pugParser(tokens);
+      ast = pugParser(tokens);
       output = JSON.stringify(ast, null, 2);
     } catch (e) {
       isError = true;
@@ -65,7 +71,18 @@ function App() {
         {isError ? (
           <pre>{output}</pre>
         ) : (
-          <Highlight className="json">{output}</Highlight>
+          <Tabs
+            defaultActiveKey="1"
+            renderTabBar={() => <ScrollableInkTabBar />}
+            renderTabContent={() => <TabContent />}
+          >
+            <TabPane tab="Interactive Tree" key="1">
+              <JSONTree invertTheme data={ast} />
+            </TabPane>
+            <TabPane tab="Raw" key="2">
+              <Highlight className="json">{output}</Highlight>
+            </TabPane>
+          </Tabs>
         )}
       </div>
     </div>
